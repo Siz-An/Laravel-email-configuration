@@ -148,6 +148,6 @@ MIT.
 ## Publishing on Packagist
 
 1. Push this repository to GitHub (default branch `main` is typical).
-2. [Create a release](https://github.com/Siz-An/Laravel-email-configuration/releases) or at least one **git tag** (for example `v1.0.0`). Packagist maps versions to tags.
+2. Create **git tags** for each release (for example `v1.0.0`). Packagist maps installable versions to these tags. This repository already includes a `v1.0.0` tag you can use for the first Packagist version.
 3. On [packagist.org](https://packagist.org/packages/submit), submit the repository URL `https://github.com/Siz-An/Laravel-email-configuration.git`.
 4. Packagist reads `composer.json` from the default branch; tagged versions appear as installable releases.
