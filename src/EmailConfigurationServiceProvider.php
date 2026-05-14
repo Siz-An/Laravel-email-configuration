@@ -12,7 +12,11 @@ class EmailConfigurationServiceProvider extends ServiceProvider
 {
     protected string $stubs = __DIR__.'/../stubs';
 
-    public function boot(): void
+    /**
+     * Register publish paths in register() so artisan vendor:publish always sees tags,
+     * even if boot order differs across Laravel / Octane contexts.
+     */
+    public function register(): void
     {
         $s = $this->stubs;
 

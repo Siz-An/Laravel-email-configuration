@@ -14,7 +14,7 @@ The `vendor/` copy keeps a tiny auto-discovered provider so `php artisan vendor:
 ### 1. Require the package
 
 ```bash
-composer require siz-an/laravel-email-configuration
+composer require siz-an/laravel-email-configuration:^3.0
 ```
 
 ### 2. Publish all application files
@@ -78,6 +78,31 @@ Add the repository to your app’s `composer.json`, require `dev-main` (or your 
 ### Local path (development)
 
 Use a `path` repository pointing at this package clone, `composer update`, then steps 2–4.
+
+### “No publishable resources for tag [email-configuration]”
+
+1. **Require 3.x** (tags only exist from v3 onward):
+
+   ```bash
+   composer show siz-an/laravel-email-configuration
+   composer require siz-an/laravel-email-configuration:^3.0
+   ```
+
+2. **Refresh Laravel’s package manifest** (common after upgrading a package):
+
+   ```bash
+   php artisan package:discover
+   php artisan optimize:clear
+   ```
+
+3. **Publish using the package provider explicitly** (bypasses discovery issues):
+
+   ```bash
+   php artisan vendor:publish --provider="Sizan\EmailConfiguration\EmailConfigurationServiceProvider" --tag=email-configuration
+   ```
+
+4. Confirm the Composer package actually contains a `stubs/` directory under  
+   `vendor/siz-an/laravel-email-configuration/stubs/`. If that folder is missing, you are on an old dist or a broken install — reinstall with `composer update siz-an/laravel-email-configuration`.
 
 ## Configuration
 
