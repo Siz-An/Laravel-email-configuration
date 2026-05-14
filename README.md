@@ -17,9 +17,18 @@ After the package is [published on Packagist](https://packagist.org):
 composer require siz-an/laravel-email-configuration
 ```
 
-The service provider is auto-discovered. Run migrations:
+The service provider is auto-discovered. **Publish** the migration (and optionally config) into your app, then migrate:
 
 ```bash
+php artisan vendor:publish --tag=email-configuration
+php artisan migrate
+```
+
+Or publish only what you need:
+
+```bash
+php artisan vendor:publish --tag=email-configuration-migrations
+php artisan vendor:publish --tag=email-configuration-config
 php artisan migrate
 ```
 
@@ -52,35 +61,43 @@ Use `dev-main` or `dev-master` depending on your default branch name, then run `
 }
 ```
 
-Then `composer update siz-an/laravel-email-configuration` and run `php artisan migrate`.
+Then `composer update siz-an/laravel-email-configuration`, publish assets, and migrate:
+
+```bash
+php artisan vendor:publish --tag=email-configuration
+php artisan migrate
+```
 
 ## After `composer require`
 
-Nothing is wrong if **`database/migrations/` in your app stays unchanged**. This package registers its migration from inside **`vendor/siz-an/laravel-email-configuration/database/migrations/`** via `loadMigrationsFrom()`. Laravel still runs it with Artisan.
+Migrations and default config live in the package until you **publish** them. That copies files into your project (for example `database/migrations/` and `config/`) so you can edit them like first-party code.
 
-1. **Create the table**
+| Tag | What it copies |
+|-----|------------------|
+| `email-configuration` | Config + migration (recommended first run) |
+| `email-configuration-migrations` | Only `database/migrations/2026_05_14_000000_create_email_configurations_table.php` |
+| `email-configuration-config` | Only `config/email-configuration.php` |
+
+1. **Publish then migrate**
 
    ```bash
+   php artisan vendor:publish --tag=email-configuration
    php artisan migrate
    ```
 
-2. **Confirm Laravel sees the migration** (optional)
+2. **Confirm** (optional)
 
    ```bash
    php artisan migrate:status
    ```
 
-   You should see a pending migration whose path contains `siz-an/laravel-email-configuration`.
+   You should see `2026_05_14_000000_create_email_configurations_table` under your app’s `database/migrations/`.
 
-3. **Optional — publish config** (only if you want `config/email-configuration.php` in your app)
-
-   ```bash
-   php artisan vendor:publish --tag=email-configuration-config
-   ```
+> **Note:** Routes and PHP classes stay in `vendor/` (that is normal for Composer packages). Only the migration and config are meant to be copied into your repo.
 
 ### Configuration (optional)
 
-Publish the config file:
+If you used `--tag=email-configuration`, you already have `config/email-configuration.php`. If you only published migrations, publish the config with:
 
 ```bash
 php artisan vendor:publish --tag=email-configuration-config
@@ -165,6 +182,15 @@ $label = $template?->created_by_display;
 
 Variable placeholders in stored content use `{{variable_name}}` syntax. Use the package’s `EmailTemplateRenderer` or your own logic before sending mail.
 
+## Upgrading from 1.x
+
+Version **2.x** no longer auto-loads migrations from `vendor/`. Publish once, then migrate (safe if the table already exists from 1.x):
+
+```bash
+php artisan vendor:publish --tag=email-configuration
+php artisan migrate
+```
+
 ## License
 
 MIT.
@@ -172,6 +198,6 @@ MIT.
 ## Publishing on Packagist
 
 1. Push this repository to GitHub (default branch `main` is typical).
-2. Create **git tags** for each release (for example `v1.0.0`). Packagist maps installable versions to these tags. This repository already includes a `v1.0.0` tag you can use for the first Packagist version.
+2. Create **git tags** for each release (for example `v2.0.0`). Packagist maps installable versions to these tags.
 3. On [packagist.org](https://packagist.org/packages/submit), submit the repository URL `https://github.com/Siz-An/Laravel-email-configuration.git`.
 4. Packagist reads `composer.json` from the default branch; tagged versions appear as installable releases.
