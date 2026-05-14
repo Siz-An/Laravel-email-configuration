@@ -1,18 +1,18 @@
 <?php
 
-namespace App\EmailConfiguration\Http\Controllers;
+namespace Sizan\EmailConfiguration\Http\Controllers;
 
-use App\EmailConfiguration\Http\Requests\IndexEmailConfigurationRequest;
-use App\EmailConfiguration\Http\Requests\StoreEmailConfigurationRequest;
-use App\EmailConfiguration\Http\Requests\TestSendEmailRequest;
-use App\EmailConfiguration\Http\Requests\UpdateEmailConfigurationRequest;
-use App\EmailConfiguration\Models\EmailConfiguration;
-use App\EmailConfiguration\Services\EmailTemplateRenderer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Sizan\EmailConfiguration\Http\Requests\IndexEmailConfigurationRequest;
+use Sizan\EmailConfiguration\Http\Requests\StoreEmailConfigurationRequest;
+use Sizan\EmailConfiguration\Http\Requests\TestSendEmailRequest;
+use Sizan\EmailConfiguration\Http\Requests\UpdateEmailConfigurationRequest;
+use Sizan\EmailConfiguration\Models\EmailConfiguration;
+use Sizan\EmailConfiguration\Services\EmailTemplateRenderer;
 use Throwable;
 
 class EmailConfigurationController extends Controller

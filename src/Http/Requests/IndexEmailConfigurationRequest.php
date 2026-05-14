@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EmailConfiguration\Http\Requests;
+namespace Sizan\EmailConfiguration\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

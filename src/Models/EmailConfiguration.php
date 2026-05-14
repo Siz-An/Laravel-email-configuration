@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EmailConfiguration\Models;
+namespace Sizan\EmailConfiguration\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,11 +40,17 @@ class EmailConfiguration extends Model
         return $this->belongsTo(static::resolveUserModel(), 'updated_by');
     }
 
+    /**
+     * Human-friendly label for the creator (uses name, email, or id when loaded).
+     */
     public function getCreatedByDisplayAttribute(): ?string
     {
         return $this->resolveUserDisplay($this->createdBy);
     }
 
+    /**
+     * Human-friendly label for the last editor (uses name, email, or id when loaded).
+     */
     public function getUpdatedByDisplayAttribute(): ?string
     {
         return $this->resolveUserDisplay($this->updatedBy);

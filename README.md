@@ -1,8 +1,6 @@
 # Laravel Email Configuration
 
-Database-backed email templates with a REST API and test-send flow. **This Composer package only ships installable files** (stubs). After you publish, **controllers, routes, models, requests, services, config, and migrations live under your application** (`app/`, `routes/`, `config/`, `database/migrations/`), not in `vendor/` as executable code.
-
-The `vendor/` copy keeps a tiny auto-discovered provider so `php artisan vendor:publish` can copy (or refresh) those stubs.
+Store reusable email templates in the database and manage them through a JSON API, including variable substitution and test sends.
 
 ## Requirements
 
@@ -11,148 +9,151 @@ The `vendor/` copy keeps a tiny auto-discovered provider so `php artisan vendor:
 
 ## Installation
 
-### 1. Require the package
+### From Packagist (recommended)
+
+After the package is [published on Packagist](https://packagist.org):
 
 ```bash
-composer require siz-an/laravel-email-configuration:^3.0
+composer require siz-an/laravel-email-configuration
 ```
 
-### 2. Publish all application files
-
-```bash
-php artisan vendor:publish --tag=email-configuration
-```
-
-This copies:
-
-| Destination | Contents |
-|-------------|----------|
-| `app/EmailConfiguration/` | `EmailConfigurationServiceProvider`, `Models\EmailConfiguration`, `Http\Controllers\…`, `Http\Requests\…`, `Services\EmailTemplateRenderer` |
-| `routes/email-configuration.php` | API route definitions |
-| `config/email-configuration.php` | Settings (prefix, middleware, table name, pagination, `user_model`) |
-| `database/migrations/2026_05_14_000000_create_email_configurations_table.php` | Creates `email_configurations` |
-
-### 3. Register the **application** service provider
-
-Add **one** line (Laravel 11+):
-
-`bootstrap/providers.php`
-
-```php
-<?php
-
-return [
-    App\Providers\AppServiceProvider::class,
-    App\EmailConfiguration\EmailConfigurationServiceProvider::class,
-];
-```
-
-Laravel 10: add the same class to the `providers` array in `config/app.php`.
-
-### 4. Migrate
+The service provider is auto-discovered. Run migrations:
 
 ```bash
 php artisan migrate
 ```
 
-### Publish tags (granular)
+### From GitHub (before Packagist)
 
-| Tag | Copies |
-|-----|--------|
-| `email-configuration` | Everything (recommended) |
-| `email-configuration-app` | Only `app/EmailConfiguration/**` |
-| `email-configuration-routes` | Only `routes/email-configuration.php` |
-| `email-configuration-config` | Only `config/email-configuration.php` |
-| `email-configuration-migrations` | Only the migration file |
+Add a VCS repository in your app’s `composer.json`, then require the branch you use (for example `main`):
 
-To overwrite existing published files with the latest stubs from the package:
-
-```bash
-php artisan vendor:publish --tag=email-configuration --force
+```json
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/Siz-An/Laravel-email-configuration.git"
+    }
+],
+"require": {
+    "siz-an/laravel-email-configuration": "dev-main"
+}
 ```
 
-### From GitHub (VCS)
-
-Add the repository to your app’s `composer.json`, require `dev-main` (or your branch), then follow steps 2–4 above.
+Use `dev-main` or `dev-master` depending on your default branch name, then run `composer update`.
 
 ### Local path (development)
 
-Use a `path` repository pointing at this package clone, `composer update`, then steps 2–4.
+```json
+"repositories": [
+    { "type": "path", "url": "../package" }
+],
+"require": {
+    "siz-an/laravel-email-configuration": "*"
+}
+```
 
-### “No publishable resources for tag [email-configuration]”
+Then `composer update siz-an/laravel-email-configuration` and run `php artisan migrate`.
 
-1. **Require 3.x** (tags only exist from v3 onward):
+## After `composer require`
 
-   ```bash
-   composer show siz-an/laravel-email-configuration
-   composer require siz-an/laravel-email-configuration:^3.0
-   ```
+Nothing is wrong if **`database/migrations/` in your app stays unchanged**. This package registers its migration from inside **`vendor/siz-an/laravel-email-configuration/database/migrations/`** via `loadMigrationsFrom()`. Laravel still runs it with Artisan.
 
-2. **Refresh Laravel’s package manifest** (common after upgrading a package):
-
-   ```bash
-   php artisan package:discover
-   php artisan optimize:clear
-   ```
-
-3. **Publish using the package provider explicitly** (bypasses discovery issues):
+1. **Create the table**
 
    ```bash
-   php artisan vendor:publish --provider="Sizan\EmailConfiguration\EmailConfigurationServiceProvider" --tag=email-configuration
+   php artisan migrate
    ```
 
-4. Confirm the Composer package actually contains a `stubs/` directory under  
-   `vendor/siz-an/laravel-email-configuration/stubs/`. If that folder is missing, you are on an old dist or a broken install — reinstall with `composer update siz-an/laravel-email-configuration`.
+2. **Confirm Laravel sees the migration** (optional)
 
-## Configuration
+   ```bash
+   php artisan migrate:status
+   ```
 
-Edit `config/email-configuration.php` after publishing.
+   You should see a pending migration whose path contains `siz-an/laravel-email-configuration`.
+
+3. **Optional — publish config** (only if you want `config/email-configuration.php` in your app)
+
+   ```bash
+   php artisan vendor:publish --tag=email-configuration-config
+   ```
+
+### Configuration (optional)
+
+Publish the config file:
+
+```bash
+php artisan vendor:publish --tag=email-configuration-config
+```
+
+Key options in `config/email-configuration.php`:
 
 | Key | Purpose |
 |-----|---------|
 | `route_prefix` | URL prefix before `email-configurations` (default: `api`). |
-| `middleware` | Route middleware (default: `['api']`). Add `auth:sanctum` etc. as needed. |
+| `middleware` | Middleware stack for package routes (default: `['api']`). Add `auth:sanctum` or similar for protected APIs. |
 | `table` | Database table name. |
-| `user_model` | FQCN for `createdBy` / `updatedBy`. If empty, uses the default auth provider model, then `App\Models\User`. |
-| `per_page` / `per_page_max` | Index pagination defaults and cap. |
+| `user_model` | FQCN for `createdBy` / `updatedBy` relations. If empty, the default auth provider’s `model` from `config/auth.php` is used, then `App\Models\User`. |
+| `per_page` | Default page size for the index endpoint. |
+| `per_page_max` | Maximum allowed `per_page` query value. |
 
-Environment variables use the `EMAIL_CONFIGURATION_` prefix (see the config file).
+Environment variables mirror these keys with the `EMAIL_CONFIGURATION_` prefix (see the config file).
 
 ## Routes
 
-Defined in **`routes/email-configuration.php`** (in your app). With the default prefix, list templates at `GET /api/email-configurations`.
+All routes are relative to your app URL and the configured `route_prefix`.
 
 | Method | URI | Action |
 |--------|-----|--------|
-| GET | `/{prefix}/email-configurations` | Paginated list |
-| POST | `/{prefix}/email-configurations` | Create |
-| GET | `/{prefix}/email-configurations/{id}` | Show |
-| PUT/PATCH | `/{prefix}/email-configurations/{id}` | Update |
-| DELETE | `/{prefix}/email-configurations/{id}` | Delete |
-| POST | `/{prefix}/email-configurations/{id}/test-send` | Test send |
+| GET | `/{prefix}/email-configurations` | Paginated list (see query parameters below). |
+| POST | `/{prefix}/email-configurations` | Create a template. |
+| GET | `/{prefix}/email-configurations/{id}` | Show one template. |
+| PUT/PATCH | `/{prefix}/email-configurations/{id}` | Update a template. |
+| DELETE | `/{prefix}/email-configurations/{id}` | Delete a template. |
+| POST | `/{prefix}/email-configurations/{id}/test-send` | Send a test message. |
+
+With the default prefix, list templates at `GET /api/email-configurations`.
 
 ## Index: pagination and filters
 
-`GET /api/email-configurations` returns a Laravel [paginator](https://laravel.com/docs/pagination) JSON payload.
+`GET /api/email-configurations` returns a Laravel [length-aware paginator](https://laravel.com/docs/pagination) JSON payload (`data`, `links`, `meta`, etc.).
 
-| Query | Description |
-|-------|-------------|
-| `per_page` | Page size (capped by `per_page_max`). |
-| `search` | Partial match on `name`, `subject`, `slug`. |
-| `type` | Exact `type` column match. |
-| `is_active` | Boolean filter. |
+### Query parameters
 
-## Model and relations
+| Parameter | Description |
+|-----------|-------------|
+| `per_page` | Page size (default from config, capped by `per_page_max`). |
+| `search` | Case-insensitive match on `name`, `subject`, or `slug` (partial match). |
+| `type` | Exact match on the `type` column (e.g. `transactional`, `marketing`, `system`). |
+| `is_active` | Boolean filter (`true` / `false`, `1` / `0`, etc.). |
 
-`App\EmailConfiguration\Models\EmailConfiguration`:
+Examples:
 
-- `createdBy()` / `updatedBy()` — `BelongsTo` your user model.
-- `created_by_display` / `updated_by_display` — optional display strings when relations are loaded.
+```http
+GET /api/email-configurations?per_page=20&search=welcome
+GET /api/email-configurations?type=transactional&is_active=1
+```
+
+## Model: users and display accessors
+
+`Sizan\EmailConfiguration\Models\EmailConfiguration` defines:
+
+- `createdBy()` — `BelongsTo` the configured user model (`created_by`).
+- `updatedBy()` — `BelongsTo` the same user model (`updated_by`).
+
+When the index, show, and store/update responses load these relations, the serialized JSON includes nested `created_by` / `updated_by` user objects (shape depends on your user model).
+
+Display helpers (not appended to JSON by default):
+
+- `created_by_display` — prefers `name`, then `email`, then `#id` on the related user.
+- `updated_by_display` — same for the last editor.
+
+Ensure `user_model` (or your auth provider’s `model`) points at your real `User` (or admin) class if those classes differ from `App\Models\User`.
 
 ## Programmatic usage
 
 ```php
-use App\EmailConfiguration\Models\EmailConfiguration;
+use Sizan\EmailConfiguration\Models\EmailConfiguration;
 
 $template = EmailConfiguration::query()
     ->where('slug', 'welcome-email')
@@ -162,17 +163,7 @@ $template?->load('createdBy', 'updatedBy');
 $label = $template?->created_by_display;
 ```
 
-Placeholders in stored HTML/text: `{{variable_name}}`. The published `App\EmailConfiguration\Services\EmailTemplateRenderer` can render them before sending mail.
-
-## Upgrading
-
-### From 2.x
-
-Re-publish with `--force` to refresh stubs, then review diffs (you may have customized published files). Ensure `App\EmailConfiguration\EmailConfigurationServiceProvider` is registered; remove any reliance on code under `vendor/…/src` for this feature (it is no longer shipped there).
-
-### From 1.x
-
-If you originally migrated from the old vendor-loaded migration, publishing uses the same migration basename; `php artisan migrate` should not duplicate the table. Still register the app provider and publish routes/app files for v3.
+Variable placeholders in stored content use `{{variable_name}}` syntax. Use the package’s `EmailTemplateRenderer` or your own logic before sending mail.
 
 ## License
 
@@ -180,6 +171,7 @@ MIT.
 
 ## Publishing on Packagist
 
-1. Push this repository to GitHub (`main` is typical).
-2. Tag releases (for example `v3.0.0`).
-3. Submit `https://github.com/Siz-An/Laravel-email-configuration.git` on [packagist.org/packages/submit](https://packagist.org/packages/submit).
+1. Push this repository to GitHub (default branch `main` is typical).
+2. Create **git tags** for each release (for example `v1.0.0`). Packagist maps installable versions to these tags. This repository already includes a `v1.0.0` tag you can use for the first Packagist version.
+3. On [packagist.org](https://packagist.org/packages/submit), submit the repository URL `https://github.com/Siz-An/Laravel-email-configuration.git`.
+4. Packagist reads `composer.json` from the default branch; tagged versions appear as installable releases.

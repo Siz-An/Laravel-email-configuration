@@ -1,6 +1,6 @@
 {
     "name": "siz-an/laravel-email-configuration",
-    "description": "Publishable Laravel scaffolding: email templates in the database, REST API, and test-send (code lives in your app/)",
+    "description": "Database-backed email templates with REST API and test-send support for Laravel",
     "type": "library",
     "license": "MIT",
     "keywords": [

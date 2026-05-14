@@ -1,6 +1,6 @@
 <?php
 
-namespace App\EmailConfiguration\Services;
+namespace Sizan\EmailConfiguration\Services;
 
 class EmailTemplateRenderer
 {
