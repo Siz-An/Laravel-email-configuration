@@ -1,7 +1,7 @@
 <?php
 
+use App\EmailConfiguration\Http\Controllers\EmailConfigurationController;
 use Illuminate\Support\Facades\Route;
-use Sizan\EmailConfiguration\Http\Controllers\EmailConfigurationController;
 
 Route::prefix(config('email-configuration.route_prefix', 'api'))
     ->middleware(config('email-configuration.middleware', ['api']))

@@ -38,7 +38,7 @@ return [
     |
     | Fully qualified class name for the user model used by createdBy() and
     | updatedBy() relationships. When null, the model from your default auth
-    | provider (config/auth.php) is used, falling back to App\Models\User.
+    | provider (config/auth.php) is used, then App\Models\User.
     |
     */
     'user_model' => env('EMAIL_CONFIGURATION_USER_MODEL'),
