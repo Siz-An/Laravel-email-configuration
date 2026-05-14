@@ -54,6 +54,30 @@ Use `dev-main` or `dev-master` depending on your default branch name, then run `
 
 Then `composer update siz-an/laravel-email-configuration` and run `php artisan migrate`.
 
+## After `composer require`
+
+Nothing is wrong if **`database/migrations/` in your app stays unchanged**. This package registers its migration from inside **`vendor/siz-an/laravel-email-configuration/database/migrations/`** via `loadMigrationsFrom()`. Laravel still runs it with Artisan.
+
+1. **Create the table**
+
+   ```bash
+   php artisan migrate
+   ```
+
+2. **Confirm Laravel sees the migration** (optional)
+
+   ```bash
+   php artisan migrate:status
+   ```
+
+   You should see a pending migration whose path contains `siz-an/laravel-email-configuration`.
+
+3. **Optional — publish config** (only if you want `config/email-configuration.php` in your app)
+
+   ```bash
+   php artisan vendor:publish --tag=email-configuration-config
+   ```
+
 ### Configuration (optional)
 
 Publish the config file:
