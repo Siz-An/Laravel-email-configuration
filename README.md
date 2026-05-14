@@ -25,6 +25,8 @@ php artisan migrate
 
 ### From GitHub (before Packagist)
 
+This package is self-contained: routes, controllers, models, and migrations run from the package namespace, and the only optional publishable artifact is the config file.
+
 Add a VCS repository in your app’s `composer.json`, then require the branch you use (for example `main`):
 
 ```json
@@ -77,6 +79,8 @@ Nothing is wrong if **`database/migrations/` in your app stays unchanged**. This
    ```bash
    php artisan vendor:publish --tag=email-configuration-config
    ```
+
+   You can also publish the same config file with `php artisan vendor:publish --tag=email-configuration`.
 
 ### Configuration (optional)
 

@@ -15,7 +15,7 @@ class EmailConfigurationServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__.'/../config/email-configuration.php' => config_path('email-configuration.php'),
-        ], 'email-configuration-config');
+        ], ['email-configuration-config', 'email-configuration']);
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
